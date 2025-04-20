@@ -1,6 +1,6 @@
 
 import { useState, useRef, useEffect } from "react";
-import { Canvas as FabricCanvas, IText } from "fabric";
+import { Canvas as FabricCanvas, IText, Image as FabricImage } from "fabric";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -39,7 +39,7 @@ export const ImageEditor = () => {
     reader.onload = (event) => {
       const imgSrc = event.target?.result as string;
       
-      // Create a fabric Image from URL with proper v6 syntax
+      // Use FabricImage.fromURL to create a fabric image object
       FabricImage.fromURL(imgSrc).then(img => {
         // Scale the image to fit the canvas while maintaining aspect ratio
         const canvasWidth = canvas.width || 800;
@@ -56,8 +56,9 @@ export const ImageEditor = () => {
         img.left = (canvasWidth - (img.width ?? 1) * scale) / 2;
         img.top = (canvasHeight - (img.height ?? 1) * scale) / 2;
         
-        // Set as background image
-        canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
+        // Set as background image - using proper v6 method
+        canvas.backgroundImage = img;
+        canvas.renderAll();
       });
     };
     reader.readAsDataURL(file);
@@ -178,4 +179,3 @@ export const ImageEditor = () => {
     </div>
   );
 };
-
