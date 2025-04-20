@@ -37,12 +37,28 @@ export const ImageEditor = () => {
 
     const reader = new FileReader();
     reader.onload = (event) => {
-      const img = new Image();
-      img.onload = () => {
-        canvas.set('backgroundImage', img.src);
-        canvas.renderAll();
-      };
-      img.src = event.target?.result as string;
+      const imgSrc = event.target?.result as string;
+      
+      // Create a fabric Image from URL with proper v6 syntax
+      FabricImage.fromURL(imgSrc).then(img => {
+        // Scale the image to fit the canvas while maintaining aspect ratio
+        const canvasWidth = canvas.width || 800;
+        const canvasHeight = canvas.height || 600;
+        
+        // Calculate scale to fit the image within canvas
+        const scaleX = canvasWidth / (img.width ?? 1);
+        const scaleY = canvasHeight / (img.height ?? 1);
+        const scale = Math.min(scaleX, scaleY);
+        
+        // Center the image
+        img.scaleX = scale;
+        img.scaleY = scale;
+        img.left = (canvasWidth - (img.width ?? 1) * scale) / 2;
+        img.top = (canvasHeight - (img.height ?? 1) * scale) / 2;
+        
+        // Set as background image
+        canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
+      });
     };
     reader.readAsDataURL(file);
   };
@@ -162,3 +178,4 @@ export const ImageEditor = () => {
     </div>
   );
 };
+
