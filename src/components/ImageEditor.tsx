@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { Canvas as FabricCanvas, IText, Image as FabricImage } from "fabric";
 import { Input } from "@/components/ui/input";
@@ -6,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { Download, FileImage } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 
 export const ImageEditor = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -39,24 +39,19 @@ export const ImageEditor = () => {
     reader.onload = (event) => {
       const imgSrc = event.target?.result as string;
       
-      // Use FabricImage.fromURL to create a fabric image object
       FabricImage.fromURL(imgSrc).then(img => {
-        // Scale the image to fit the canvas while maintaining aspect ratio
         const canvasWidth = canvas.width || 800;
         const canvasHeight = canvas.height || 600;
         
-        // Calculate scale to fit the image within canvas
         const scaleX = canvasWidth / (img.width ?? 1);
         const scaleY = canvasHeight / (img.height ?? 1);
         const scale = Math.min(scaleX, scaleY);
         
-        // Center the image
         img.scaleX = scale;
         img.scaleY = scale;
         img.left = (canvasWidth - (img.width ?? 1) * scale) / 2;
         img.top = (canvasHeight - (img.height ?? 1) * scale) / 2;
         
-        // Set as background image - using proper v6 method
         canvas.backgroundImage = img;
         canvas.renderAll();
       });
@@ -67,7 +62,9 @@ export const ImageEditor = () => {
   const addText = () => {
     if (!canvas || !text) return;
 
-    const fabricText = new IText(text, {
+    const formattedText = text.split('\n').join('\n');
+
+    const fabricText = new IText(formattedText, {
       left: 100,
       top: 100,
       fill: textColor,
@@ -138,10 +135,11 @@ export const ImageEditor = () => {
           <div className="space-y-6">
             <div className="space-y-2">
               <Label>Text Content</Label>
-              <Input
+              <Textarea
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 placeholder="Enter text..."
+                className="min-h-[100px] resize-y"
               />
               <Button onClick={addText} className="w-full">
                 Add Text
